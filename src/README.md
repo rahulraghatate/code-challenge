@@ -21,7 +21,8 @@
     8. Any number of 
         Ingest(e,D) function call can be performed to update the datastore and  
         TopXSimpleLTVCustomers(x, D) to request top x customer by LTV_Value
-                        
+    9. Currently, fetching of new_records from new_file doesn't update the raw data_store(as records with different keys cannot be       
+       appended). But the main tables(customer, order,image,site_visit retains all the previous and new records).                   
                         
 ### In Progress/Future Work:   
     1. Implementation of Referential Integrity in database management, by implementing DQ_check function to check for valid records before ingesting and create Log_files for every ingest activity.
@@ -34,16 +35,20 @@
 
     Ingest(e,D)--> Ingest(file_path, exising Database)
           D <-- input the new events from raw_file
+       
+          #UPDATE THE DATABASE
+          
           customer <-- (existing + new) customers
-          site_visit <-- existing + new site_visit
-          order  <-- existing + new orders
-          image  <-- existing + new images
+          site_visit <-- (existing + new) site_visit
+          order  <-- (existing + new) orders
+          image  <-- (existing + new) images
+          Update Datastore size
     
     TopXSimpleLTVCustomers(x,D) -->
           Update the Order table
-          Total_revenue by each customer
-          Total site_visit by customer
-          List of Customers
+          Calculate --> Total_revenue by each customer
+          Calculate --> Total site_visit by customer
+          Fetch List of Customers
           Calculate --> rev_per_visit=total_revenue/total_visits
           Calculate --> visits_per_wk=total_visits/num_weeks
           Calculate --> LTV_Value=rev_per_visit * visit_per_wk * 52 * 10(average lifespan for Shutterfly)

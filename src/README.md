@@ -33,7 +33,7 @@ Note: Default Function calls Ingest(e,D) and TopXSimpleLTVCustomers(x,D) have be
     2. Also, Events can be processed in parallel by different threads, therefore multi connections can be establish for multiple sources.
     3. Implemetation of Slowly changing Dimension (SCD) - Type 3 for better database management and analytics results
     4. LTV table is created every_single time by processing all the records. Instead, delta update can be done only to update records for which customer activity happened recently.
-                        
+    5. Working on Test Data Generator, currently generates data  properly for all keys except "event_time".
 
 ###  Code_structure
 

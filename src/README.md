@@ -2,7 +2,8 @@
 ## Problem Statement: Program to Ingest and Process Shutterfly Events data and to find top X customers by life time value
 
 #### Python version: Python 3.6
-
+Open and run the code.py after adding the Ingest(e,D) and TopXSimpleLTVCustomers(x,D)
+(Note: integration of these commands as external input for the code.py is in progress) 
 ### Implementation(Current):
     1. Events are received from a input source as a set of files and processed one after the other and placed into database 
     record by record.
@@ -31,7 +32,7 @@
     4. LTV table is created every_single time by processing all the records. Instead, delta update can be done only to update records for which customer activity happened recently.
                         
 
-##  Code_structure
+###  Code_structure
 
     Ingest(e,D)--> Ingest(file_path, exising Database)
           D <-- input the new events from raw_file

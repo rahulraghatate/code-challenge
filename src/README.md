@@ -37,7 +37,7 @@ Note: Default Function calls Ingest(e,D) and TopXSimpleLTVCustomers(x,D) have be
 
 ###  Code_structure
 
-    Ingest(e,D)--> Ingest(file_path, exising Database)
+#### Ingest(e,D)--> Ingest(file_path, exising Database)
           D <-- input the new events from raw_file
        
           #UPDATE THE DATABASE
@@ -48,7 +48,7 @@ Note: Default Function calls Ingest(e,D) and TopXSimpleLTVCustomers(x,D) have be
           image  <-- (existing + new) images
           Update Datastore size
     
-    TopXSimpleLTVCustomers(x,D) -->
+#### TopXSimpleLTVCustomers(x,D) -->
           Update the Order table
           Calculate --> Total_revenue by each customer
           Calculate --> Total site_visit by customer

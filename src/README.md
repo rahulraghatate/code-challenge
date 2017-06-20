@@ -1,5 +1,5 @@
-# ShutterFly Code Challenge.
-## Problem Statement: Program to Ingest and Process Shutterfly Events data and to find top X customers by life time value
+## Problem Statement: 
+### Program to Ingest and Process Shutterfly Events data and to find top X customers by life time value
 
 #### Python version: Python 3.6
 ### Code Run:

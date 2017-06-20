@@ -1,1 +1,5 @@
-Your output data will end up here
+customer_id	  customer_last_name	total_revenue	total_visits	LTV_Value
+96f55c7d8f40	Smithy	                12.34	        1	          6416
+96f55c7d8f41	Smitha	                66.9	        5	          1288
+96f55c7d8f42	Smith	                  31.88	        3	           828
+

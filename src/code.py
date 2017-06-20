@@ -6,42 +6,52 @@ import os
 import json
 
 
-def Ingest(e, D=[]):
-    data = pd.read_json(e)
-    #except:
-    #    print ("Invalid File Name or File is Missing")    
+customer=pd.DataFrame()
+order=pd.DataFrame()
+site_visit=pd.DataFrame()
+image=pd.DataFrame()
+LTV_table = pd.DataFrame(columns=['customer_id','customer_last_name','total_revenue','total_visits','LTV_Value'])
+    
+def Ingest(e, D):
+    try:
+        D = pd.read_json(e)
+    except:
+        print ("Invalid File Name or File is Missing")    
     # Creating Subsets of the Main Data_store as follows:
-    customer = data[data['type'] == 'CUSTOMER']
-    site_visit = data[data['type'] == 'SITE_VISIT']
-    image = data[data['type'] == 'IMAGE']
-    order = data[data['type'] == 'ORDER']
-    print(order[['verb','key']])
-        
-        
+    data=D.copy()
+    global customer,order,site_visit,image
+    customer = customer.append(D[D['type'] == 'CUSTOMER']).drop_duplicates().reset_index()
+    site_visit = site_visit.append(D[D['type'] == 'SITE_VISIT']).reset_index()
+    image = image.append(D[D['type'] == 'IMAGE']).drop_duplicates().reset_index()
+    order = order.append(D[D['type'] == 'ORDER']).drop_duplicates().reset_index()
+
     #Update the table order [Implementing Type 1 SCD: Keeping the updated order]
     order = order.sort_values(by=["key", "event_time"],ascending=False)
     order = order.drop_duplicates(subset=["key"], keep='first')
     
-    
     # Size of Datastore
-    print("current size of datastore :",len(data))
-   
-    # Removing 'USD' from total amount for calculations
-    for k, v in order['total_amount'].iteritems():
-        order.set_value(k, 'total_amount', float(str(v).split(' ')[0]))    
+    size = len(customer) + len(order) + len(image) + len(site_visit)
+    print("size of updated datastore :",size)
 
-    # Total Revenue by each customer
-    revenue = pd.DataFrame(order.groupby(['customer_id'])[['total_amount']].sum())
+def TopXSimpleLTVCustomers(x, D):
+    
+    global site_visit,order,customer
+    
+    # Removing 'USD' from total amount for total_revenue calculations
+    if(len(order) != 0):
+        for k, v in order['total_amount'].iteritems():
+            order.set_value(k, 'total_amount', float(str(v).split(' ')[0]))
+        # Total Revenue by each customer
+        revenue = pd.DataFrame(order.groupby(['customer_id'])[['total_amount']].sum())
+    else:
+        print('no orders in order table')
     
     #Total Visits by each customer
     visits = site_visit['customer_id'].value_counts()
-    
+
     #List of customer_ids
     customer_list = list(set(customer['key']))
-    
-    #Creating LTV table for customers
-    LTV_table = pd.DataFrame(columns=['customer_id','customer_last_name','total_revenue','total_visits','LTV_Value'])
-    
+
     #Update the LTV table
     for i in customer_list:
             idx = len(LTV_table)
@@ -69,7 +79,12 @@ def Ingest(e, D=[]):
             LTV_table.loc[idx, 'total_revenue'] = float(revenue.loc[i, 'total_amount'])
             LTV_table.loc[idx, 'total_visits'] = visits.loc[i]
             LTV_table.loc[idx, 'LTV_Value'] = int(ltv_value)
-    return(LTV_table)
+            
+            LTV_Table=LTV_table.sort_values(by="LTV_Value",ascending=False)
+            
+            top_x = LTV_Table.head(x).reset_index(drop=True)
+            top_x.to_csv('../output/output.txt',index=False,sep='\t')
+            print(top_x)
 
 # Function to calculate the weeks between first and last visit in the timeframe
 def cal_weeks(visit_list):
@@ -79,11 +94,7 @@ def cal_weeks(visit_list):
     dt2 = datetime.date(dt2[0], dt2[1], dt2[2])
     return(((dt1 - dt2)/7).days)   
 
-def TopXSimpleLTVCustomers(x, LTV):
-    LTV_Table=LTV.sort_values(by="LTV_Value",ascending=False)
-    top_x = LTV_Table.head(x)
-    print(top_x)
+Ingest('../input/events.txt', D)
+Ingest('../input/events1.txt', D)
 
-LTV = Ingest('../sample_input/events.txt', D)
-
-TopXSimpleLTVCustomers(10, LTV)
+TopXSimpleLTVCustomers(10, D)

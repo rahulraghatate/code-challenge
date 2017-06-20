@@ -15,6 +15,13 @@ def Ingest(e, D=[]):
     site_visit = data[data['type'] == 'SITE_VISIT']
     image = data[data['type'] == 'IMAGE']
     order = data[data['type'] == 'ORDER']
+    print(order[['verb','key']])
+        
+        
+    #Update the table order [Implementing Type 1 SCD: Keeping the updated order]
+    order = order.sort_values(by=["key", "event_time"],ascending=False)
+    order = order.drop_duplicates(subset=["key"], keep='first')
+    
     
     # Size of Datastore
     print("current size of datastore :",len(data))
@@ -49,9 +56,11 @@ def Ingest(e, D=[]):
                     nweeks = 1
 
             rev_per_wk = (revenue.loc[i, 'total_amount'] / visits.loc[i])
+            
             vist_per_wk= (visits.loc[i] / nweeks)
-            print(nweeks)
+            
             a= rev_per_wk * vist_per_wk
+            
             ltv_value = 52 * a * 10
 
             #Update the LTV values for customers in LTV_table
@@ -75,6 +84,6 @@ def TopXSimpleLTVCustomers(x, LTV):
     top_x = LTV_Table.head(x)
     print(top_x)
 
-LTV=Ingest('../input/events.txt', D)
+LTV = Ingest('../sample_input/events.txt', D)
 
 TopXSimpleLTVCustomers(10, LTV)

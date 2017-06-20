@@ -2,8 +2,10 @@
 ## Problem Statement: Program to Ingest and Process Shutterfly Events data and to find top X customers by life time value
 
 #### Python version: Python 3.6
-Open and run the code.py after adding the Ingest(e,D) and TopXSimpleLTVCustomers(x,D)
-(Note: integration of these commands as external input for the code.py is in progress) 
+### Open and run the code.py after adding the Ingest(e,D) and TopXSimpleLTVCustomers(x,D) as per requirements
+    (Note: Default Function calls have been included in the code and works fine.
+     Integration of these commands as external input for the code.py is in progress) 
+
 ### Implementation(Current):
     1. Events are received from a input source as a set of files and processed one after the other and placed into database 
     record by record.

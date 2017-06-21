@@ -15,11 +15,15 @@ LTV_table = pd.DataFrame(columns=['customer_id','customer_last_name','total_reve
 def Ingest(e, D):
     try:
         D = pd.read_json(e)
+        D=D.astype(str)
+        D['event_time'] = pd.to_datetime(D['event_time'])
     except:
         print ("Invalid File Name or File is Missing")    
+    
     # Creating Subsets of the Main Data_store as follows:
-    data=D.copy()
+    
     global customer,order,site_visit,image
+    
     customer = customer.append(D[D['type'] == 'CUSTOMER']).drop_duplicates().reset_index()
     site_visit = site_visit.append(D[D['type'] == 'SITE_VISIT']).reset_index()
     image = image.append(D[D['type'] == 'IMAGE']).drop_duplicates().reset_index()
@@ -48,6 +52,7 @@ def TopXSimpleLTVCustomers(x, D):
     
     #Total Visits by each customer
     visits = site_visit['customer_id'].value_counts()
+    print(visits)
 
     #List of customer_ids
     customer_list = list(set(customer['key']))
@@ -65,11 +70,11 @@ def TopXSimpleLTVCustomers(x, D):
                 if nweeks == 0:
                     nweeks = 1
 
-            rev_per_wk = (revenue.loc[i, 'total_amount'] / visits.loc[i])
+            rev_per_visit = (revenue.loc[i, 'total_amount'] / visits.loc[i])
             
             vist_per_wk= (visits.loc[i] / nweeks)
             
-            a= rev_per_wk * vist_per_wk
+            a= rev_per_visit * vist_per_wk
             
             ltv_value = 52 * a * 10
 
@@ -80,11 +85,10 @@ def TopXSimpleLTVCustomers(x, D):
             LTV_table.loc[idx, 'total_visits'] = visits.loc[i]
             LTV_table.loc[idx, 'LTV_Value'] = int(ltv_value)
             
-            LTV_Table=LTV_table.sort_values(by="LTV_Value",ascending=False)
-            
-            top_x = LTV_Table.head(x).reset_index(drop=True)
-            top_x.to_csv('../output/output.txt',index=False,sep='\t')
-            print(top_x)
+    LTV_Table=LTV_table.sort_values(by="LTV_Value",ascending=False)        
+    top_x = LTV_Table.head(x).reset_index(drop=True)
+    top_x.to_csv('../output/output.txt',index=False,sep='\t')
+    print(top_x)
 
 # Function to calculate the weeks between first and last visit in the timeframe
 def cal_weeks(visit_list):
@@ -94,7 +98,10 @@ def cal_weeks(visit_list):
     dt2 = datetime.date(dt2[0], dt2[1], dt2[2])
     return(((dt1 - dt2)/7).days)   
 
+
+
+#Function Calls
+D=pd.DataFrame()
 Ingest('../input/events.txt', D)
 Ingest('../input/events1.txt', D)
-
 TopXSimpleLTVCustomers(10, D)
